@@ -17,23 +17,27 @@ person_emails = ["mmiletic@cisco.com"]
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST' and 'Content-Type' in request.headers and 'application/json' in request.headers.get('Content-Type'):
-        # Notification payload, received from XXXX webhook. Assuming there are all these fields below
+        
+        # Extract data from received POST
         data = request.get_json()
+        logger.info("POST received")
                 
         # Determine if POST came from SDWAN or WEBEX teams. So far 2 options possible data(webex) or xxxx present in body
         if "data" in data:
+            
             #we got POST from Webex teams
-            logger.info("post from webex teams")
+            logger.info("POST from webex teams")
 
             # Check if msg came from BOT itself and then ignore. 
             if msg.bot_id == data.get('data').get('personId'):
+                logger.warning("Message from self ignored")
                 return 'Message from self ignored'
 
             # Collect the roomId from the notification, so you know where to post the response
             roomId=data.get('data').get('roomId')
             logger.debug("Room ID: %s",roomId)
             logger.debug("Person ID: %s",data.get('data').get('personId'))
-            logger.debug("Raw msg: %s",data.get('data'))
+            logger.debug("Raw msg: %s",json.dumps(data.get('data'),indent=4))
 
             # Collect the message id from the notification, so you can fetch the message content or card content
             messageId=data.get('data').get('id')
@@ -45,6 +49,7 @@ def index():
             
             # Check if there was a text message or card submitted in Webex. submit -> card, None -> text
             if messageType=="submit":
+                
                 # message received is a card message
                 msg.get_card_message(messageId)
                 logger.debug("This is the submit content of a Card that we got from the webhook: %s",msg.message_structure)
@@ -91,10 +96,15 @@ def index():
                         
                     msg.post_message_card(roomId,cardMessage, card(cardName,vard))
 
+                    logger.debug("Izabrana opcija/card: %s", msg.message_structure['network'])
+
                 elif msg.message_structure["card_name"]=="show":
                     # Show card
+
+                    # Call sdwan class to login to sdwan
                     sd = Sdwan()
                     
+                    # Initially nothing is selected
                     none_selected=True
 
                     cardName="card_output_generic.json"
@@ -109,14 +119,14 @@ def index():
                             "colour1": "Accent","colour2": "Good","colour3": "Dark"}
 
                             msg.post_message_card(roomId,cardMessage,card(cardName,vard))
-                            
+
+                            logger.debug("Izabrana opcija/card: %s", command)
+
                             none_selected=False
                     
                     
                     if none_selected:
                         # Nothing selected
-
-                        logger.info("Nothing selected")
 
                         cardMessage="Nothing selected"
                         
@@ -127,7 +137,10 @@ def index():
                             "colour1": "Attention","colour2": "Attention","colour3": "Attention"}
 
                         msg.post_message_card(roomId,cardMessage,card(cardName,vard))
+
+                        logger.warning("Nothing selected")
                     
+                    # Logout from sdwan once finished
                     sd.logout()
 
 
@@ -145,7 +158,7 @@ def index():
 
                     msg.post_message_card(roomId,cardMessage,card(cardName,vard))
 
-                    logger.info("start backup")
+                    logger.info("Start backup")
 
                 elif msg.message_structure["card_name"]=="main":
                     # Home/main menu button pressed
@@ -157,10 +170,11 @@ def index():
 
                     msg.post_message_card(roomId,cardMessage,card(cardName,vard))
 
-                    logger.info("back to main menu")            
+                    logger.info("Back to main menu")            
                 
             else:
                 # message received is text message
+                
                 msg.get_txt_message(messageId)
                 logger.debug("This is the msg content got from the webhook: %s",msg.message_structure)
                 logger.debug("This is the type of the msg got from the webhook: %s", type(msg.message_structure))
@@ -178,25 +192,26 @@ def index():
         
         else:
             #we got POST from SDWAN
-            logger.info("post sa SDWAN")
+            
             severity=data["severity"]
             message=data["message"]
             component=data["consumed_events"][0]["component"]
             system_ip=data["consumed_events"][0]["system-ip"]
             hostname=data["consumed_events"][0]["host-name"]
             vpn_id=data["consumed_events"][0]["vpn-id"]
-            # Print the notification payload, received from the webhook
-            print(json.dumps(data,indent=4))
-            #msg_text = "We got POST from SDWAN"
+
             msg_text=f"Severity: {severity} from hosname: {hostname} with IP: {system_ip} and VPN ID: {vpn_id}, on COMPONENT: {component} with the message:\n{message}"
             for person_email in person_emails:
                 msg.post_message_email(person_email, msg_text)
 
+            logger.info("post sa SDWAN")
+            logger.debug("Raw json: %s", json.dumps(data,indent=4))
         return data
 
     else: 
         msg_text = "We got GET or POST from CURL or something is wrong"
         logger.warning(msg_text)
+
         for person_email in person_emails:
             msg.post_message_email(person_email, msg_text)
         return None
