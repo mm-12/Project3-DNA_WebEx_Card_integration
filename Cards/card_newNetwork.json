@@ -55,7 +55,8 @@
                     }
                 ],
                 "placeholder": "Select network id",
-                "id": "network"
+                "id": "network",
+                "separator": true
             },
             {
                 "type": "ActionSet",
@@ -69,7 +70,8 @@
                             "card_name": "newNetwork"
                         }
                     }
-                ]
+                ],
+                "separator": true
             }
         ]
     }

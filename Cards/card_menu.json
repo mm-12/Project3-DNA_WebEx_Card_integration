@@ -7,21 +7,26 @@
 		"type": "AdaptiveCard",
 		"version": "1.2",
 		"$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-		"body": [{
+		"body": [
+			{
 				"type": "ColumnSet",
-				"columns": [{
+				"columns": [
+					{
 						"type": "Column",
 						"width": "auto",
-						"items": [{
-							"type": "Image",
-							"url": "https://community.cisco.com/legacyfs/online/fusion/117586_DNA%20Center%20Graphic.png",
-							"size": "Medium"
-						}]
+						"items": [
+							{
+								"type": "Image",
+								"url": "https://community.cisco.com/legacyfs/online/fusion/117586_DNA%20Center%20Graphic.png",
+								"size": "Medium"
+							}
+						]
 					},
 					{
 						"type": "Column",
 						"width": "stretch",
-						"items": [{
+						"items": [
+							{
 								"type": "TextBlock",
 								"text": "DNA Demo",
 								"wrap": true,
@@ -36,112 +41,113 @@
 								"color": "Good"
 							}
 						]
-					},
-					{
-						"type": "Column",
-						"width": "auto",
-						"items": [
-							{
-								"type": "TextBlock",
-								"wrap": true,
-								"text": "🏠",
-								"horizontalAlignment": "Right",
-								"isSubtle": true
-							}
-						]
 					}
 				]
 			},
 			{
 				"type": "Container",
-				"items": [{
-					"type": "ColumnSet",
-					"columns": [{
-							"type": "Column",
-							"width": 50,
-							"items": [{
-									"type": "TextBlock",
-									"text": "CONFIGURE",
-									"wrap": true,
-									"weight": "Bolder",
-									"separator": true,
-									"horizontalAlignment": "Center"
-								},
-								{
-									"type": "ActionSet",
-									"actions": [{
-										"type": "Action.Submit",
-										"title": "🌐 New network",
-										"id": "0",
-										"data": {
-											"button": "newNetwork"
-										}
-									}],
-									"horizontalAlignment": "Center"
-								}
-							]
-						},
-						{
-							"type": "Column",
-							"width": 50,
-							"items": [{
-									"type": "TextBlock",
-									"text": "MONITOR",
-									"wrap": true,
-									"weight": "Bolder",
-									"separator": true,
-									"horizontalAlignment": "Center"
-								},
-								{
-									"type": "ActionSet",
-									"actions": [{
-										"type": "Action.Submit",
-										"title": "🖥️ Show",
-										"id": "1",
-										"data": {
-											"button": "show"
-										}
-									}],
-									"horizontalAlignment": "Center"
-								}
-							]
-						},
-						{
-							"type": "Column",
-							"width": 50,
-							"items": [{
-									"type": "TextBlock",
-									"text": "ANALYSE",
-									"wrap": true,
-									"weight": "Bolder",
-									"separator": true,
-									"horizontalAlignment": "Center"
-								},
-								{
-									"type": "ActionSet",
-									"actions": [{
-										"type": "Action.Submit",
-										"title": "🔍 Backup",
-										"id": "2",
-										"data": {
-											"button": "backup"
-										}
-									}],
-									"horizontalAlignment": "Center"
-								}
-							]
-						}
-					],
-					"separator": true
-				}],
+				"items": [
+					{
+						"type": "ColumnSet",
+						"columns": [
+							{
+								"type": "Column",
+								"width": 50,
+								"items": [
+									{
+										"type": "TextBlock",
+										"text": "CONFIGURE",
+										"wrap": true,
+										"weight": "Bolder",
+										"separator": true,
+										"horizontalAlignment": "Center"
+									},
+									{
+										"type": "ActionSet",
+										"actions": [
+											{
+												"type": "Action.Submit",
+												"title": "🌐 New network",
+												"id": "0",
+												"data": {
+													"button": "newNetwork"
+												}
+											}
+										],
+										"horizontalAlignment": "Center"
+									}
+								]
+							},
+							{
+								"type": "Column",
+								"width": 50,
+								"items": [
+									{
+										"type": "TextBlock",
+										"text": "MONITOR",
+										"wrap": true,
+										"weight": "Bolder",
+										"separator": true,
+										"horizontalAlignment": "Center"
+									},
+									{
+										"type": "ActionSet",
+										"actions": [
+											{
+												"type": "Action.Submit",
+												"title": "🖥️ Show",
+												"id": "1",
+												"data": {
+													"button": "show"
+												}
+											}
+										],
+										"horizontalAlignment": "Center"
+									}
+								]
+							},
+							{
+								"type": "Column",
+								"width": 50,
+								"items": [
+									{
+										"type": "TextBlock",
+										"text": "ANALYSE",
+										"wrap": true,
+										"weight": "Bolder",
+										"separator": true,
+										"horizontalAlignment": "Center"
+									},
+									{
+										"type": "ActionSet",
+										"actions": [
+											{
+												"type": "Action.Submit",
+												"title": "🔍 Backup",
+												"id": "2",
+												"data": {
+													"button": "backup"
+												}
+											}
+										],
+										"horizontalAlignment": "Center"
+									}
+								]
+							}
+						],
+						"separator": true
+					}
+				],
 				"style": "accent"
 			},
 			{
 				"type": "Input.ChoiceSet",
-				"choices": [{
-					"title": "title",
-					"value": "pera"
-				}],
+				"choices": [
+					{
+						"title": "title",
+						"value": "pera"
+					}
+				],
 				"placeholder": "Selected option",
 				"id": "main",
 				"value": "lala",

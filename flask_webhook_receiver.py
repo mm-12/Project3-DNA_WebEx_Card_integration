@@ -131,7 +131,7 @@ def index():
                         cardMessage="Nothing selected"
                         
                         cardOptionTitle="None selected"
-                        cardOptionText="None of the show options selected. Please select at least one show output!"
+                        cardOptionText="None of the show options selected.\\nPlease select at least one show output!"
 
                         vard={"var1": cardOptionTitle, "var2": cardOptionText, \
                             "colour1": "Attention","colour2": "Attention","colour3": "Attention"}
@@ -151,7 +151,8 @@ def index():
                     cardName="card_output_generic.json"
 
                     cardOptionTitle="Backup option selected"
-                    cardOptionText="Backup is starting!!!"
+                    #cardOptionText="Backup is starting!!!"
+                    cardOptionText="test fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\n"
 
                     vard={"var1": cardOptionTitle, "var2": cardOptionText, \
                         "colour1": "Accent","colour2": "Good","colour3": "Dark"}
@@ -224,7 +225,7 @@ def card(card_file,vard=None):
     if vard:
        t = Template(text) 
        r= t.render(vard)
-
+       logger.error(r)
        return json.loads(r)
     else:
         return json.loads(text)

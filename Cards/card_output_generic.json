@@ -47,22 +47,24 @@
                 "type": "TextBlock",
                 "text": "{{ var2 }}",
                 "wrap": true,
-                "color": "{{ colour3 }}"
+                "color": "{{ colour3 }}",
+                "separator": true
             },
             {
                 "type": "ActionSet",
                 "actions": [
                     {
                         "type": "Action.Submit",
-                        "title": "Back to 🏠",
                         "id": "0",
                         "data": {
                             "card_name": "main"
-                        }
+                        },
+                        "title": "Main menu"
                     }
                 ],
                 "height": "stretch",
-                "horizontalAlignment": "Right"
+                "horizontalAlignment": "Right",
+                "separator": true
             }
         ]
     }

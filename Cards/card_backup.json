@@ -45,7 +45,8 @@
             },
             {
                 "type": "Image",
-                "url": "http://www.tech365.nl/wp-content/uploads/2015/01/back-up-maken.jpg"
+                "url": "http://www.tech365.nl/wp-content/uploads/2015/01/back-up-maken.jpg",
+                "separator": true
             },
             {
                 "type": "ActionSet",
@@ -59,7 +60,8 @@
                             "card_name": "backup"
                         }
                     }
-                ]
+                ],
+                "separator": true
             }
         ]
     }
