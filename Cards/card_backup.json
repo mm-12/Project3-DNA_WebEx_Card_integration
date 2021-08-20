@@ -1,0 +1,66 @@
+[{
+	"contentType": "application/vnd.microsoft.card.adaptive",
+	"content":
+
+    {
+        "type": "AdaptiveCard",
+        "version": "1.2",
+        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+        "body": [
+            {
+                "type": "ColumnSet",
+                "columns": [
+                    {
+                        "type": "Column",
+                        "width": "auto",
+                        "items": [
+                            {
+                                "type": "Image",
+                                "url": "https://community.cisco.com/legacyfs/online/fusion/117586_DNA%20Center%20Graphic.png",
+                                "size": "Medium"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Column",
+                        "width": "stretch",
+                        "items": [
+                            {
+                                "type": "TextBlock",
+                                "text": "DNA Demo",
+                                "wrap": true,
+                                "weight": "Bolder",
+                                "size": "Medium",
+                                "color": "Accent"
+                            },
+                            {
+                                "type": "TextBlock",
+                                "text": "Backup options",
+                                "wrap": true,
+                                "color": "Good"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "Image",
+                "url": "http://www.tech365.nl/wp-content/uploads/2015/01/back-up-maken.jpg"
+            },
+            {
+                "type": "ActionSet",
+                "actions": [
+                    {
+                        "type": "Action.Submit",
+                        "title": "Start!",
+                        "style": "positive",
+                        "id": "333",
+                        "data": {
+                            "card_name": "backup"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+}]
