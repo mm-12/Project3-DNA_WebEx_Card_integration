@@ -2,7 +2,7 @@ from flask import Flask, request, json
 import requests
 from messenger import Messenger
 import re
-from sdwan import Sdwan
+from dna import Dna
 from jinja2 import Template
 from console_logging import logger
 
@@ -22,7 +22,7 @@ def index():
         data = request.get_json()
         logger.info("POST received")
                 
-        # Determine if POST came from SDWAN or WEBEX teams. So far 2 options possible data(webex) or xxxx present in body
+        # Determine if POST came from DNA or WEBEX teams. So far 2 options possible data(webex) or xxxx present in body
         if "data" in data:
             
             #we got POST from Webex teams
@@ -52,7 +52,7 @@ def index():
                 
                 # message received is a card message
                 msg.get_card_message(messageId)
-                logger.debug("This is the submit content of a Card that we got from the webhook: %s",msg.message_structure)
+                logger.debug("This is the submit content of a Card that we got from the webhook: %s",json.dumps(msg.message_structure,indent=4))
                 logger.debug("This is the type of the submit got from the webhook: %s", type(msg.message_structure))
                 
 
@@ -101,8 +101,8 @@ def index():
                 elif msg.message_structure["card_name"]=="show":
                     # Show card
 
-                    # Call sdwan class to login to sdwan
-                    sd = Sdwan()
+                    # Call Dna class to login to DNA
+                    dn = Dna()
                     
                     # Initially nothing is selected
                     none_selected=True
@@ -112,8 +112,8 @@ def index():
                     for command, flag in msg.message_structure.items():
                         if flag=="true":
                             cardMessage=command
-                            cardOptionTitle=command + " option selected"
-                            cardOptionText=getattr(sd, command)()
+                            cardOptionTitle=command.replace("_"," ") + " option selected"
+                            cardOptionText=getattr(dn, command)()
                             
                             vard={"var1": cardOptionTitle, "var2": cardOptionText, \
                             "colour1": "Accent","colour2": "Good","colour3": "Dark"}
@@ -140,8 +140,6 @@ def index():
 
                         logger.warning("Nothing selected")
                     
-                    # Logout from sdwan once finished
-                    sd.logout()
 
 
                 elif msg.message_structure["card_name"]=="backup":
@@ -192,7 +190,7 @@ def index():
                     msg.post_message_roomId(roomId,"Type hello to start")           
         
         else:
-            #we got POST from SDWAN
+            #we got POST from DNA
             
             severity=data["severity"]
             message=data["message"]
@@ -205,7 +203,7 @@ def index():
             for person_email in person_emails:
                 msg.post_message_email(person_email, msg_text)
 
-            logger.info("post sa SDWAN")
+            logger.info("post sa DNA")
             logger.debug("Raw json: %s", json.dumps(data,indent=4))
         return data
 
