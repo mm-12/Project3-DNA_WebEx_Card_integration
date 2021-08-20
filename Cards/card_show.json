@@ -48,13 +48,18 @@
                 "items": [
                     {
                         "type": "Input.Toggle",
-                        "title": "show users",
-                        "id": "show_users"
+                        "title": "show client health",
+                        "id": "show_client_health"
                     },
                     {
                         "type": "Input.Toggle",
-                        "title": "show controllers",
-                        "id": "show_controllers"
+                        "title": "show network health",
+                        "id": "show_network_health"
+                    },
+                    {
+                        "type": "Input.Toggle",
+                        "title": "show site health",
+                        "id": "show_site_health"
                     },
                     {
                         "type": "Input.Toggle",
