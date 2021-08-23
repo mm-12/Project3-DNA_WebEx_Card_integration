@@ -1,0 +1,15 @@
+show inventory
+NAME: "c93xx Stack", DESCR: "c93xx Stack"
+PID: C9300-48U         , VID: V01  , SN: FOC2135Z00T
+
+NAME: "Switch 1", DESCR: "C9300-48U"
+PID: C9300-48U         , VID: V01  , SN: FOC2135Z00T
+
+NAME: "Switch 1 - Power Supply A", DESCR: "Switch 1 - Power Supply A"
+PID: PWR-C1-1100WAC    , VID: V02  , SN: DTN2132V3J6
+
+NAME: "Switch 1 FRU Uplink Module 1", DESCR: "8x10G Uplink Module"
+PID: C9300-NM-8X       , VID: V01  , SN: FOC213823NL
+
+
+spine1#
