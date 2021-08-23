@@ -4,6 +4,8 @@ from messenger import Messenger
 import re
 from dna import Dna
 from jinja2 import Template
+import pystache
+
 from console_logging import logger
 
 
@@ -30,7 +32,6 @@ def index():
 
             # Check if msg came from BOT itself and then ignore. 
             if msg.bot_id == data.get('data').get('personId'):
-                logger.warning("Message from self ignored")
                 return 'Message from self ignored'
 
             # Collect the roomId from the notification, so you know where to post the response
@@ -41,12 +42,16 @@ def index():
 
             # Collect the message id from the notification, so you can fetch the message content or card content
             messageId=data.get('data').get('id')
-            logger.debug("Message ID: %s",messageId)
+            logger.debug("MSG ID: %s",messageId)
             
             # Get the type of the received message. So far 2 types possible: submit(card), None(text)
             messageType=data.get('data').get('type')
             logger.debug("MSG type: %s",messageType)
             
+
+            # Call Dna class to login to DNA
+            dn = Dna()
+
             # Check if there was a text message or card submitted in Webex. submit -> card, None -> text
             if messageType=="submit":
                 
@@ -71,38 +76,46 @@ def index():
                     logger.debug("Izabrana opcija/card: %s", msg.message_structure['button'])
 
 
-                elif msg.message_structure["card_name"]=="newNetwork":
-                    # New network card
+                elif msg.message_structure["card_name"]=="cmdRunner":
+                    # New command runner
                     
                     #Define cardName. cardMessage, vard, cardOptionTitle, cardOptionText latter
                     cardName="card_output_generic.json"
 
-                    if msg.message_structure['network']=="":
+                    if msg.message_structure['cmd']=="":
                         cardMessage="Nothing selected"
                         
                         cardOptionTitle="Nothing selected"
-                        cardOptionText="Please select at least one network"
+                        cardOptionText="Please select at least one command"
                         
                         vard={"var1": cardOptionTitle, "var2": cardOptionText, \
                             "colour1": "Attention","colour2": "Attention","colour3": "Attention"}
                     else:
-                        cardMessage="Card for option " + msg.message_structure['network']
+                        command = msg.message_structure['cmd']
+                        command_format = command.replace("_"," ")
+                        cardMessage="Card for option " + command_format
 
-                        cardOptionTitle="Option " + msg.message_structure['network'] + " selected"
-                        cardOptionText="Some output for option " + msg.message_structure['network']
+                        cardOptionTitle="Option " + command_format + " selected"
                         
-                        vard={"var1": cardOptionTitle, "var2": cardOptionText, \
+                        cardOptionText=getattr(dn, command)()
+                        
+
+                        file_path=f"/Users/mmiletic/Documents/DEVOPS/Projects/Project3-DNA_WebEx_Card_integration/Attach/{command_format}.doc"
+                        
+                        
+                        with open(file_path, "w") as tf:
+                            tf.write(cardOptionText[command_format])
+
+                        vard={"var1": cardOptionTitle, "var2": "Check attachment for details", \
                                 "colour1": "Accent","colour2": "Good","colour3": "Dark"}
-                        
-                    msg.post_message_card(roomId,cardMessage, card(cardName,vard))
 
-                    logger.debug("Izabrana opcija/card: %s", msg.message_structure['network'])
+                    msg.post_message_card(roomId,cardMessage, card(cardName,vard))
+                    msg.post_message_roomId_file(roomId, msg.messageParentId, cardMessage, file_path, command_format)
+
+                    logger.debug("Izabrana opcija/card: %s", msg.message_structure['cmd'])
 
                 elif msg.message_structure["card_name"]=="show":
                     # Show card
-
-                    # Call Dna class to login to DNA
-                    dn = Dna()
                     
                     # Initially nothing is selected
                     none_selected=True
@@ -221,9 +234,11 @@ def card(card_file,vard=None):
         text = fp.read()
     
     if vard:
-       t = Template(text) 
-       r= t.render(vard)
-       logger.error(r)
+       
+       # logger.debug(f"This is how unparsed card will look like: {r}")
+       
+       r = pystache.render(text, vard)
+
        return json.loads(r)
     else:
         return json.loads(text)
@@ -255,7 +270,7 @@ def get_webhook_urls():
             webhook_urls_res.append((webhook['targetUrl'],webhook['resource']))
     return webhook_urls_res
 
-ngrok_url="http://faea97fe4531.eu.ngrok.io"
+ngrok_url="http://cd6c-109-133-255-223.eu.ngrok.io"
 ngrok_url_msg=[(ngrok_url,"messages")]
 ngrok_url_att=[(ngrok_url,"attachmentActions")]
 
@@ -273,16 +288,18 @@ logger.debug("intersect_att: %s",intersect_att)
 
 
 if intersect_msg:
-    logger.debug(f'Registered webhook for Msg: {intersect_msg[0]}')
+    logger.info(f'Already registered webhook for Msg: {intersect_msg[0]}')
 else: 
+    logger.warning("There is no webhook for messages yet. Creating a new one")
     create_webhook(ngrok_url, "messages")
-    logger.warning("There is no webhook for messages yet. Create a new one")
+    
 
 if intersect_att:
-    logger.debug(f'Registered webhook for Att: {intersect_att[0]}')
+    logger.info(f'Already registered webhook for Att: {intersect_att[0]}')
 else: 
+    logger.warning("There is no webhook for cards yet. Creating a new one")
     create_webhook(ngrok_url, "attachmentActions")
-    logger.warning("There is no webhook for cards yet. Create a new one")
+    
 
 
 if __name__ == '__main__':

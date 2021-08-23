@@ -1,5 +1,7 @@
 import json
 import requests
+from requests_toolbelt.multipart.encoder import MultipartEncoder
+
 
 
 # API Key is obtained from the Webex Teams developers website.
@@ -19,10 +21,12 @@ class Messenger():
         self.bot_id = requests.get(f'{self.base_url}/people/me', headers=self.headers).json().get('id')
 
 
+
     # RETRIVE A MESSAGE
     # Retrieve a specific message posted by user -> str, using message_id
     def get_txt_message(self, message_id): 
         received_message_url = f'{self.base_url}/messages/{message_id}'
+
         self.message_structure = requests.get(received_message_url, headers=self.headers).json().get('text')
 
     # Retrieve a specific card submitted by  user -> dict, using message_id
@@ -50,6 +54,24 @@ class Messenger():
         post_message_url = f'{self.base_url}/messages'
         requests.post(post_message_url,headers=self.headers,data=json.dumps(data))
 
+    def post_message_roomId_file(self, room_id, parent_id, message, file_path, file):
+      
+        post_message_url = f'{self.base_url}/messages'
+
+        m = MultipartEncoder({'roomId': room_id,
+                      'parentId': parent_id,
+                      'text': message,
+                      'files': (file, open(file_path, 'rb'),
+                      'text/plain')})
+        
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type" : m.content_type
+        }
+
+        requests.post(post_message_url,headers=headers,data=m)
+        
+
     # Post a card to a Webex Teams space (to roomID)
     def post_message_card(self, room_id, message, card):
         data = {
@@ -58,6 +80,12 @@ class Messenger():
             "attachments": card
             } 
         post_message_url = f'{self.base_url}/messages'
-        requests.post(post_message_url,headers=self.headers,data=json.dumps(data))
+        response = requests.post(post_message_url,headers=self.headers,data=json.dumps(data))
+
+        self.messageParentId = response.json().get("id")
+
+        
+
+
 
     

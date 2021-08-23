@@ -1,6 +1,6 @@
 import os
 import requests
-
+import json
 
 
 
@@ -50,18 +50,15 @@ class Dna():
         url = self.base_url + api      
         
         headers = {"content-type": "application/json"}
+        
 
-        print("da li sam ovde")
-        try:
-            response = requests.post(url=url,auth=(self.dna_username,self.dna_username),headers=headers,verify=False, timeout=5)
-            print("a ovde????")
-        except:
-            print ("timeout se desio. vrati fake token")
-            return "e5454"
+        response = requests.post(url=url,auth=(self.dna_username,self.dna_password),headers=headers,verify=False)
+    
 
         if response.status_code == 200:
             return response.json()["Token"]
         else:
+            print(response.status_code, response)
             return None
 
 
@@ -81,7 +78,7 @@ class Dna():
 
 
         for item in items:
-            s = s + f"- Device ID: {item.get('id')} \\n Hosname: {item.get('hostname')} \\n IP address: {item.get('managementIpAddress')}\\n\\n"
+            s = s + f"- **Device ID:** {item.get('id')} \\n Hosname: {item.get('hostname')} \\n IP address: {item.get('managementIpAddress')}\\n\\n"
         return s
 
     
@@ -100,7 +97,7 @@ class Dna():
             return s
 
         for item in items:
-            s = s + f"- Site: {item.get('siteName')} \\n Health: {item.get('networkHealthAverage')}\\n\\n"
+            s = s + f"- **Site:** {item.get('siteName')} \\n Health: {item.get('networkHealthAverage')}\\n\\n"
         return s
 
     
@@ -118,11 +115,9 @@ class Dna():
             s = f"Failed to get network health {str(response.text)}"
             return s
         
-        s = f"- Good: {items[0].get('goodCount')} \\n Bad: {items[0].get('badCount')} \\n Health score: {items[0].get('healthScore')}\\n\\n"
+        s = s + f"- **Good:** {items[0].get('goodCount')} \\n Bad: {items[0].get('badCount')} \\n Health score: {items[0].get('healthScore')}\\n\\n"
         
         return s
-
-
 
     
     def show_client_health(self):
@@ -140,12 +135,84 @@ class Dna():
             return s
         
         for item in items[0].get('scoreDetail'):
-            s = s + f"- Type: {item.get('scoreCategory').get('value')} \\n Count: {item.get('clientCount')} \\n Score: {item.get('scoreValue')}\\n\\n"
+            s = s + f"- **Type:** {item.get('scoreCategory').get('value')} \\n Count: {item.get('clientCount')} \\n Score: {item.get('scoreValue')}\\n\\n"
             
             try:
                 for category in item.get('scoreList'):
-                    s = s + f"\tType: {category.get('scoreCategory').get('value')}, Count: {category.get('clientCount')}"
+                    s = s + f"\\t- Type: {category.get('scoreCategory').get('value')} \\n \\t Count: {category.get('clientCount')}\\n"
             except:
                 pass
         
         return s
+
+    def show_version(self):
+        # Get show version
+
+        url = self.base_url + "/dna/intent/api/v1/network-device-poller/cli/read-request"
+        
+        param = {
+        "name": "Show Command",
+        "commands": ["show version"],
+        "deviceUuids": ["f16955ae-c349-47e9-8e8f-9b62104ab604"]
+        }
+        
+
+        response = requests.post(url=url, data=json.dumps(param),headers=self.header,verify=False)
+        
+        if response.status_code == 200 or response.status_code == 202:
+            task_id = response.json()['response']['taskId']
+        else:
+            s = f"Failed to get cmd {str(response.text)}"
+            return s
+        
+
+        return self._get_task_info(task_id)
+
+        
+    
+    def _get_task_info(self,task_id):
+        
+        url = self.base_url + f"/api/v1/task/{task_id}"
+        
+        result = requests.get(url, headers=self.header)
+        file_id = result.json()['response']['progress']
+        
+        print ("file_id: ", file_id)
+        if "fileId" in file_id:
+            file_id=json.loads(file_id)["fileId"]
+        else:  # keep checking for task completion
+            self._get_task_info(task_id)
+        
+        return self._get_cmd_output(file_id)
+    
+    def _get_cmd_output(self,file_id):
+
+        url = self.base_url + f"/api/v1/file/{file_id}"
+
+        result = requests.get(url, headers=self.header)
+        
+        return result.json()[0]["commandResponses"]["SUCCESS"]
+
+
+    def show_inventory(self):
+        # Get show inventory
+
+        url = self.base_url + "/dna/intent/api/v1/network-device-poller/cli/read-request"
+        
+        param = {
+        "name": "Show Inventory",
+        "commands": ["show inventory"],
+        "deviceUuids": ["f16955ae-c349-47e9-8e8f-9b62104ab604"]
+        }
+        
+
+        response = requests.post(url=url, data=json.dumps(param),headers=self.header,verify=False)
+        
+        if response.status_code == 200 or response.status_code == 202:
+            task_id = response.json()['response']['taskId']
+        else:
+            s = f"Failed to get cmd {str(response.text)}"
+            return s
+        
+
+        return self._get_task_info(task_id)
