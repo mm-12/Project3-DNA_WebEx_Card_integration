@@ -67,10 +67,10 @@
 										"actions": [
 											{
 												"type": "Action.Submit",
-												"title": "🌐 New network",
+												"title": "🌐 Command runner",
 												"id": "0",
 												"data": {
-													"button": "newNetwork"
+													"button": "cmdRunner"
 												}
 											}
 										],
