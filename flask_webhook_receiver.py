@@ -8,12 +8,26 @@ import pystache
 
 from console_logging import logger
 
+import os
+
 
 app = Flask(__name__)
 port = 5005
 
 msg = Messenger()
 person_emails = ["mmiletic@cisco.com"]
+Cards={"0": "main", "1": "cmdRunner", "2": "show", "3": "backup"}
+
+DIR = os.path.dirname(os.path.abspath(__file__))
+cf="pera"
+print (DIR)
+print (os.path.join(DIR,f"Attach/{cf}.doc"))
+#file_path=f"/Users/mmiletic/Documents/DEVOPS/Projects/Project3-DNA_WebEx_Card_integration/Attach/{command_format}.doc"
+                        
+                        
+#with open(file_path, "w") as tf:
+#    tf.write(cardOptionText[command_format])
+
 
 
 @app.route('/', methods=['GET', 'POST'])
