@@ -14,22 +14,6 @@ import os
 app = Flask(__name__)
 port = 5005
 
-msg = Messenger()
-person_emails = ["mmiletic@cisco.com"]
-Cards={"0": "main", "1": "cmdRunner", "2": "show", "3": "backup"}
-
-DIR = os.path.dirname(os.path.abspath(__file__))
-cf="pera"
-print (DIR)
-print (os.path.join(DIR,f"Attach/{cf}.doc"))
-#file_path=f"/Users/mmiletic/Documents/DEVOPS/Projects/Project3-DNA_WebEx_Card_integration/Attach/{command_format}.doc"
-                        
-                        
-#with open(file_path, "w") as tf:
-#    tf.write(cardOptionText[command_format])
-
-
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST' and 'Content-Type' in request.headers and 'application/json' in request.headers.get('Content-Type'):
@@ -84,28 +68,30 @@ def index():
                     cardName="card_" + msg.message_structure['button'] + ".json"
                     
                     vard = None
-
-                    msg.post_message_card(roomId,cardMessage, card(cardName, vard))
-
+                    print("ovde si")
+                    msg.post_message_card(roomId,cardMessage, card_jsonAttach(cardName, vard))
+                    print("i ovde si")
                     logger.debug("Izabrana opcija/card: %s", msg.message_structure['button'])
 
 
-                elif msg.message_structure["card_name"]=="cmdRunner":
+                elif "input_" in msg.message_structure["card_name"]:
                     # New command runner
                     
                     #Define cardName. cardMessage, vard, cardOptionTitle, cardOptionText latter
                     cardName="card_output_generic.json"
+                    command = msg.message_structure["cmd"]
 
-                    if msg.message_structure['cmd']=="":
+                    if command=="":
                         cardMessage="Nothing selected"
                         
                         cardOptionTitle="Nothing selected"
-                        cardOptionText="Please select at least one command"
+                        cardOptionText="Please select at least one option from the list"
                         
-                        vard={"var1": cardOptionTitle, "var2": cardOptionText, \
+                        
+                        vard={"iconURL": iconURL, "mainTitle": mainTitle, \
+                            "var1": cardOptionTitle, "var2": cardOptionText, \
                             "colour1": "Attention","colour2": "Attention","colour3": "Attention"}
                     else:
-                        command = msg.message_structure['cmd']
                         command_format = command.replace("_"," ")
                         cardMessage="Card for option " + command_format
 
@@ -114,21 +100,21 @@ def index():
                         cardOptionText=getattr(dn, command)()
                         
 
-                        file_path=f"/Users/mmiletic/Documents/DEVOPS/Projects/Project3-DNA_WebEx_Card_integration/Attach/{command_format}.doc"
-                        
+                        file_path=os.path.join(DIR,f"Attach/{command_format}.doc")
                         
                         with open(file_path, "w") as tf:
                             tf.write(cardOptionText[command_format])
-
-                        vard={"var1": cardOptionTitle, "var2": "Check attachment for details", \
+                        
+                        vard={"iconURL": iconURL, "mainTitle": mainTitle, \
+                                "var1": cardOptionTitle, "var2": "Check attachment for details", \
                                 "colour1": "Accent","colour2": "Good","colour3": "Dark"}
-
-                    msg.post_message_card(roomId,cardMessage, card(cardName,vard))
+                        
+                    msg.post_message_card(roomId,cardMessage, card_jsonAttach(cardName,vard))
                     msg.post_message_roomId_file(roomId, msg.messageParentId, cardMessage, file_path, command_format)
 
-                    logger.debug("Izabrana opcija/card: %s", msg.message_structure['cmd'])
+                    logger.debug("Izabrana opcija/card: %s", command)
 
-                elif msg.message_structure["card_name"]=="show":
+                elif "toggle_" in msg.message_structure["card_name"]:
                     # Show card
                     
                     # Initially nothing is selected
@@ -142,10 +128,11 @@ def index():
                             cardOptionTitle=command.replace("_"," ") + " option selected"
                             cardOptionText=getattr(dn, command)()
                             
-                            vard={"var1": cardOptionTitle, "var2": cardOptionText, \
+                            vard={"iconURL": iconURL, "mainTitle": mainTitle, \
+                            "var1": cardOptionTitle, "var2": cardOptionText, \
                             "colour1": "Accent","colour2": "Good","colour3": "Dark"}
 
-                            msg.post_message_card(roomId,cardMessage,card(cardName,vard))
+                            msg.post_message_card(roomId,cardMessage,card_jsonAttach(cardName,vard))
 
                             logger.debug("Izabrana opcija/card: %s", command)
 
@@ -158,12 +145,13 @@ def index():
                         cardMessage="Nothing selected"
                         
                         cardOptionTitle="None selected"
-                        cardOptionText="None of the show options selected.\\nPlease select at least one show output!"
+                        cardOptionText="None of the options selected.\\nPlease select at least one option!"
 
-                        vard={"var1": cardOptionTitle, "var2": cardOptionText, \
+                        vard={"iconURL": iconURL, "mainTitle": mainTitle, \
+                            "var1": cardOptionTitle, "var2": cardOptionText, \
                             "colour1": "Attention","colour2": "Attention","colour3": "Attention"}
 
-                        msg.post_message_card(roomId,cardMessage,card(cardName,vard))
+                        msg.post_message_card(roomId,cardMessage,card_jsonAttach(cardName,vard))
 
                         logger.warning("Nothing selected")
                     
@@ -179,10 +167,11 @@ def index():
                     #cardOptionText="Backup is starting!!!"
                     cardOptionText="test fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\n"
 
-                    vard={"var1": cardOptionTitle, "var2": cardOptionText, \
+                    vard={"iconURL": iconURL, "mainTitle": mainTitle, \
+                        "var1": cardOptionTitle, "var2": cardOptionText, \
                         "colour1": "Accent","colour2": "Good","colour3": "Dark"}
 
-                    msg.post_message_card(roomId,cardMessage,card(cardName,vard))
+                    msg.post_message_card(roomId,cardMessage,card_jsonAttach(cardName,vard))
 
                     logger.info("Start backup")
 
@@ -190,11 +179,11 @@ def index():
                     # Home/main menu button pressed
 
                     cardMessage="Card for main manu"
-                    cardName="card_menu.json"
+                    cardName="card_main_menu.json"
 
                     vard=None
 
-                    msg.post_message_card(roomId,cardMessage,card(cardName,vard))
+                    msg.post_message_card(roomId,cardMessage,card_jsonAttach(cardName,vard))
 
                     logger.info("Back to main menu")            
                 
@@ -209,10 +198,10 @@ def index():
                 # If Hello is sent, show the cards
                 if "hello" in msg.message_structure.lower():
                     cardMessage="Card for main manu"
-                    cardName="card_menu.json"
+                    cardName="card_main_menu.json"
                     vard=None
 
-                    msg.post_message_card(roomId,cardMessage, card(cardName,vard))
+                    msg.post_message_card(roomId,cardMessage, card_jsonAttach(cardName,vard))
                 else:
                     msg.post_message_roomId(roomId,"Type hello to start")           
         
@@ -243,17 +232,19 @@ def index():
         return None
 
 
-def card(card_file,vard=None):
-    with open(f'Cards/{card_file}') as fp:
+def card_jsonAttach(card_file,vard=None):
+    with open(f'Cards/templates/{card_file}') as fp:
         text = fp.read()
     
     if vard:
        
        # logger.debug(f"This is how unparsed card will look like: {r}")
        
-       r = pystache.render(text, vard)
+       t = Template(text)
+       r= t.render(vard)
 
        return json.loads(r)
+
     else:
         return json.loads(text)
 
@@ -283,6 +274,56 @@ def get_webhook_urls():
         for webhook in webhooks.json()['items']:
             webhook_urls_res.append((webhook['targetUrl'],webhook['resource']))
     return webhook_urls_res
+
+def createCard(card_type, iconURL, mainTitle, subTitle, options, card_name_p):
+    if card_type == "input":
+        cardName_template="card_inputChoiceSet_template.json"
+        print(f"Reminder that you need to spcify functions {options.values()} in file dna.py if not already")
+    elif card_type == "toggle":
+        cardName_template="card_toggle_template.json"
+        print(f"Reminder that you need to spcify functions {options.values()} in file dna.py if not already")
+    elif card_type == "main":
+        cardName_template="card_mainmenu_template.json"
+        for v in options.values():
+            for vl in v.values():
+                all_manu_buttons.append(vl)
+
+        if list(set(all_manu_buttons) - set(cards)):
+            print ("There is still button defined in main menu, that is not defined as a card", list(set(all_manu_buttons) - set(cards)))
+        if list(set(cards) - set(all_manu_buttons)):
+            print ("There is still card defined, that is not defined in the main menu", list(set(cards) - set(all_manu_buttons)))
+
+
+
+    else:
+        print("Wrong card type!")
+        exit()
+
+
+    vard={"iconURL": iconURL, "mainTitle": mainTitle, \
+            "subTitle": subTitle, \
+            "toggle_choiceset": options, \
+            "card_name": card_type+"_"+card_name_p  }
+    
+    cardName="card_"+vard["card_name"]+".json"
+    
+    file_path=os.path.join(DIR,f"Cards/templates/{cardName}")
+    
+    with open(file_path, "w") as tf:
+        tf.write(json.dumps(card_jsonAttach(cardName_template,vard),indent=4))
+    
+    cards.append(vard["card_name"])
+    
+
+
+
+
+msg = Messenger()
+person_emails = ["mmiletic@cisco.com"]
+
+
+DIR = os.path.dirname(os.path.abspath(__file__))    
+
 
 ngrok_url="http://cd6c-109-133-255-223.eu.ngrok.io"
 ngrok_url_msg=[(ngrok_url,"messages")]
@@ -316,5 +357,50 @@ else:
     
 
 
-if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=port, debug=True)
+
+
+
+# CARDS
+cards=[]
+all_manu_buttons=[]
+
+iconURL="https://community.cisco.com/legacyfs/online/fusion/117586_DNA%20Center%20Graphic.png"
+mainTitle="1000s Demo"
+
+card_type="input"
+subTitle = "Command runner options"
+options = { "Show version" : "show_version", "Show inventory" : "show_inventory"}
+card_name = "cmdRunnertest"
+
+createCard(card_type, iconURL, mainTitle, subTitle, options, card_name)
+
+
+card_type="toggle"
+subTitle = "Show commnad options"
+options = { "show client health" : "show_client_health", "show network health" : "show_network_health", \
+                            "show site health": "show_site_health", "show devices":"show_devices"}
+card_name = "show"
+
+createCard(card_type, iconURL, mainTitle, subTitle, options, card_name)
+
+card_type="toggle"
+subTitle = "Show config options"
+options = { "confgig a" : "config_a", "config  b" : "config_b"}
+card_name = "config"
+
+createCard(card_type, iconURL, mainTitle, subTitle, options, card_name)
+
+card_type="main"
+subTitle = "Chatbot demo assisting with configuring, monitoring and analysing data."
+options = { "CONFIGURE" : {"🌐 Command runner" : "input_cmdRunnertest"}, \
+            "MONITOR" : { "🚑 Health" : "toggle_show"},  \
+            "ANALYSE" : {"🔍 Backup" : "backup", "🧪 Testing" : "toggle_config"} \
+            }
+card_name = "menu"
+
+createCard(card_type, iconURL, mainTitle, subTitle, options, card_name)
+
+
+
+
+app.run(host="0.0.0.0", port=port, debug=True)

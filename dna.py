@@ -168,7 +168,28 @@ class Dna():
 
         return self._get_task_info(task_id)
 
+    def show_inventory(self):
+        # Get show inventory
+
+        url = self.base_url + "/dna/intent/api/v1/network-device-poller/cli/read-request"
         
+        param = {
+        "name": "Show Inventory",
+        "commands": ["show inventory"],
+        "deviceUuids": ["f16955ae-c349-47e9-8e8f-9b62104ab604"]
+        }
+        
+
+        response = requests.post(url=url, data=json.dumps(param),headers=self.header,verify=False)
+        
+        if response.status_code == 200 or response.status_code == 202:
+            task_id = response.json()['response']['taskId']
+        else:
+            s = f"Failed to get cmd {str(response.text)}"
+            return s
+        
+
+        return self._get_task_info(task_id)
     
     def _get_task_info(self,task_id):
         
@@ -194,25 +215,4 @@ class Dna():
         return result.json()[0]["commandResponses"]["SUCCESS"]
 
 
-    def show_inventory(self):
-        # Get show inventory
-
-        url = self.base_url + "/dna/intent/api/v1/network-device-poller/cli/read-request"
-        
-        param = {
-        "name": "Show Inventory",
-        "commands": ["show inventory"],
-        "deviceUuids": ["f16955ae-c349-47e9-8e8f-9b62104ab604"]
-        }
-        
-
-        response = requests.post(url=url, data=json.dumps(param),headers=self.header,verify=False)
-        
-        if response.status_code == 200 or response.status_code == 202:
-            task_id = response.json()['response']['taskId']
-        else:
-            s = f"Failed to get cmd {str(response.text)}"
-            return s
-        
-
-        return self._get_task_info(task_id)
+   

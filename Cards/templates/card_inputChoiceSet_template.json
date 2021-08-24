@@ -1,0 +1,76 @@
+[{
+	"contentType": "application/vnd.microsoft.card.adaptive",
+	"content":
+    {
+        "type": "AdaptiveCard",
+        "version": "1.2",
+        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+        "body": [
+            {
+                "type": "ColumnSet",
+                "columns": [
+                    {
+                        "type": "Column",
+                        "width": "auto",
+                        "items": [
+                            {
+                                "type": "Image",
+                                "url": "{{ iconURL }}",
+                                "size": "Medium"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Column",
+                        "width": "stretch",
+                        "items": [
+                            {
+                                "type": "TextBlock",
+                                "text": "{{ mainTitle }}",
+                                "wrap": true,
+                                "weight": "Bolder",
+                                "size": "Medium",
+                                "color": "Accent"
+                            },
+                            {
+                                "type": "TextBlock",
+                                "text": "{{ subTitle }}",
+                                "wrap": true,
+                                "color": "Good"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "Input.ChoiceSet",
+                "choices": [
+                    {% for title, value in toggle_choiceset.items() %}
+                    {
+                        "title": "{{ title }}",
+                        "value": "{{ value }}"
+                    }{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                ],
+                "placeholder": "Select one option",
+                "id": "cmd",
+                "separator": true
+            },
+            {
+                "type": "ActionSet",
+                "actions": [
+                    {
+                        "type": "Action.Submit",
+                        "title": "Submit",
+                        "style": "positive",
+                        "id": "111",
+                        "data": {
+                            "card_name": "{{ card_name }}"
+                        }
+                    }
+                ],
+                "separator": true
+            }
+        ]
+    }
+}]

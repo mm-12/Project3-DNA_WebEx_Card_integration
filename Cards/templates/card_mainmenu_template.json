@@ -1,0 +1,164 @@
+[{
+	"contentType": "application/vnd.microsoft.card.adaptive",
+	"content":
+
+
+	{
+		"type": "AdaptiveCard",
+		"version": "1.2",
+		"$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+		"body": [
+			{
+				"type": "ColumnSet",
+				"columns": [
+					{
+						"type": "Column",
+						"width": "auto",
+						"items": [
+							{
+								"type": "Image",
+								"url": "{{ iconURL }}",
+								"size": "Medium"
+							}
+						]
+					},
+					{
+						"type": "Column",
+						"width": "stretch",
+						"items": [
+							{
+								"type": "TextBlock",
+								"text": "{{ mainTitle }}",
+								"wrap": true,
+								"weight": "Bolder",
+								"size": "Medium",
+								"color": "Accent"
+							},
+							{
+								"type": "TextBlock",
+								"text": "{{ subTitle }}",
+								"wrap": true,
+								"color": "Good"
+							}
+						]
+					}
+				]
+			},
+			{
+				"type": "Container",
+				"items": [
+					{
+						"type": "ColumnSet",
+						"columns": [
+							{
+								"type": "Column",
+								"width": 50,
+								"items": [
+									{
+										"type": "TextBlock",
+										"text": "CONFIGURE",
+										"wrap": true,
+										"weight": "Bolder",
+										"separator": true,
+										"horizontalAlignment": "Center"
+									},
+									{% for title, button in toggle_choiceset["CONFIGURE"].items() %}
+									{
+										"type": "ActionSet",
+										"actions": [
+											{
+												"type": "Action.Submit",
+												"title": "{{ title }}",
+												"id": "0-{{ loop.index }}",
+												"data": {
+													"button": "{{ button }}"
+												}
+											}
+										],
+										"horizontalAlignment": "Center"
+									}{% if not loop.last %},{% endif %}
+									{% endfor %}
+								]
+							},
+							{
+								"type": "Column",
+								"width": 50,
+								"items": [
+									{
+										"type": "TextBlock",
+										"text": "MONITOR",
+										"wrap": true,
+										"weight": "Bolder",
+										"separator": true,
+										"horizontalAlignment": "Center"
+									},
+									{% for title, button in toggle_choiceset["MONITOR"].items() %}
+									{
+										"type": "ActionSet",
+										"actions": [
+											{
+												"type": "Action.Submit",
+												"title": "{{ title }}",
+												"id": "1-{{ loop.index }}",
+												"data": {
+													"button": "{{ button }}"
+												}
+											}
+										],
+										"horizontalAlignment": "Center"
+									}{% if not loop.last %},{% endif %}
+									{% endfor %}
+								]
+							},
+							{
+								"type": "Column",
+								"width": 50,
+								"items": [
+									{
+										"type": "TextBlock",
+										"text": "ANALYSE",
+										"wrap": true,
+										"weight": "Bolder",
+										"separator": true,
+										"horizontalAlignment": "Center"
+									},
+									{% for title, button in toggle_choiceset["ANALYSE"].items() %}
+									{
+										"type": "ActionSet",
+										"actions": [
+											{
+												"type": "Action.Submit",
+												"title": "{{ title }}",
+												"id": "2-{{ loop.index }}",
+												"data": {
+													"button": "{{ button }}"
+												}
+											}
+										],
+										"horizontalAlignment": "Center"
+									}{% if not loop.last %},{% endif %}
+									{% endfor %}
+								]
+							}
+						],
+						"separator": true
+					}
+				],
+				"style": "accent"
+			},
+			{
+				"type": "Input.ChoiceSet",
+				"choices": [
+					{
+						"title": "title",
+						"value": "pera"
+					}
+				],
+				"placeholder": "Selected option",
+				"id": "main",
+				"value": "lala",
+				"isVisible": false
+			}
+		]
+	}
+}]

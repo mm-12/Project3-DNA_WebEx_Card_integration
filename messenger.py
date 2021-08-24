@@ -80,8 +80,9 @@ class Messenger():
             "attachments": card
             } 
         post_message_url = f'{self.base_url}/messages'
+        print("a jesi li ovde")
         response = requests.post(post_message_url,headers=self.headers,data=json.dumps(data))
-
+        print("iiii jesi li ovde", response)
         self.messageParentId = response.json().get("id")
 
         
