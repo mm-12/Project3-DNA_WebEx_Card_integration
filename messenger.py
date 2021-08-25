@@ -80,13 +80,54 @@ class Messenger():
             "attachments": card
             } 
         post_message_url = f'{self.base_url}/messages'
-        print("a jesi li ovde")
         response = requests.post(post_message_url,headers=self.headers,data=json.dumps(data))
-        print("iiii jesi li ovde", response)
+        
         self.messageParentId = response.json().get("id")
 
+
+    def _get_webhook_urls(self):
+        webhook_urls_res = []
+        webhooks_api = f'{self.base_url}/webhooks'
+        webhooks = requests.get(webhooks_api, headers=self.headers)
+        if webhooks.status_code != 200:
+                webhooks.raise_for_status()
+        else:
+            for webhook in webhooks.json()['items']:
+                webhook_urls_res.append((webhook['targetUrl'],webhook['resource']))
+        return webhook_urls_res      
+
+    def _create_webhook(self,targetUrl,resource):
+        webhooks_api = f'{self.base_url}/webhooks'
+        data = { 
+            "name": f"Webhook to ChatBot - {resource}",
+            "resource": resource,
+            "event": "created",
+            "targetUrl": f"{targetUrl}"
+            }
+        webhook = requests.post(webhooks_api, headers=self.headers, data=json.dumps(data))
         
+        if webhook.status_code != 200:
+            webhook.raise_for_status()
 
+    def registerWebhook(self, ngrok_url):
 
+        ngrok_url_msg=[(ngrok_url,"messages")]
+        ngrok_url_att=[(ngrok_url,"attachmentActions")]
 
+        webhook_urls = self._get_webhook_urls()
+
+        intersect_msg = list(set(ngrok_url_msg) & set(webhook_urls))
+        intersect_att = list(set(ngrok_url_att) & set(webhook_urls))
+
+        if not intersect_msg:
+            self._create_webhook(ngrok_url, "messages")
+            
+        if not intersect_att:
+            self._create_webhook(ngrok_url, "attachmentActions")
     
+    
+                
+
+
+
+            

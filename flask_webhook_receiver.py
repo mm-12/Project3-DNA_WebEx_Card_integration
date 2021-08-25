@@ -1,14 +1,14 @@
 from flask import Flask, request, json
-import requests
 from messenger import Messenger
 import re
 from dna import Dna
 from jinja2 import Template
-import pystache
 
 from console_logging import logger
 
 import os
+
+from Card import CardInput, CardMain, CardOutput, CardToggle
 
 
 app = Flask(__name__)
@@ -33,19 +33,17 @@ def index():
                 return 'Message from self ignored'
 
             # Collect the roomId from the notification, so you know where to post the response
+            # Collect the message id from the notification, so you can fetch the message content or card content
+            # Get the type of the received message. So far 2 types possible: submit(card), None(text)
             roomId=data.get('data').get('roomId')
+            messageId=data.get('data').get('id')
+            messageType=data.get('data').get('type')
+            logger.debug("MSG type: %s",messageType)
+            logger.debug("MSG ID: %s",messageId)
             logger.debug("Room ID: %s",roomId)
             logger.debug("Person ID: %s",data.get('data').get('personId'))
             logger.debug("Raw msg: %s",json.dumps(data.get('data'),indent=4))
 
-            # Collect the message id from the notification, so you can fetch the message content or card content
-            messageId=data.get('data').get('id')
-            logger.debug("MSG ID: %s",messageId)
-            
-            # Get the type of the received message. So far 2 types possible: submit(card), None(text)
-            messageType=data.get('data').get('type')
-            logger.debug("MSG type: %s",messageType)
-            
 
             # Call Dna class to login to DNA
             dn = Dna()
@@ -68,9 +66,8 @@ def index():
                     cardName="card_" + msg.message_structure['button'] + ".json"
                     
                     vard = None
-                    print("ovde si")
+                    
                     msg.post_message_card(roomId,cardMessage, card_jsonAttach(cardName, vard))
-                    print("i ovde si")
                     logger.debug("Izabrana opcija/card: %s", msg.message_structure['button'])
 
 
@@ -87,30 +84,28 @@ def index():
                         cardOptionTitle="Nothing selected"
                         cardOptionText="Please select at least one option from the list"
                         
-                        
-                        vard={"iconURL": iconURL, "mainTitle": mainTitle, \
-                            "var1": cardOptionTitle, "var2": cardOptionText, \
+                        vard={"var1": cardOptionTitle, "var2": cardOptionText, \
                             "colour1": "Attention","colour2": "Attention","colour3": "Attention"}
+
+                        msg.post_message_card(roomId,cardMessage, card_jsonAttach(cardName,vard))
+
                     else:
+                        cardOptionText=getattr(dn, command)()
+
                         command_format = command.replace("_"," ")
                         cardMessage="Card for option " + command_format
-
                         cardOptionTitle="Option " + command_format + " selected"
                         
-                        cardOptionText=getattr(dn, command)()
-                        
-
                         file_path=os.path.join(DIR,f"Attach/{command_format}.doc")
                         
                         with open(file_path, "w") as tf:
                             tf.write(cardOptionText[command_format])
                         
-                        vard={"iconURL": iconURL, "mainTitle": mainTitle, \
-                                "var1": cardOptionTitle, "var2": "Check attachment for details", \
+                        vard={"var1": cardOptionTitle, "var2": "Check attachment for details", \
                                 "colour1": "Accent","colour2": "Good","colour3": "Dark"}
                         
-                    msg.post_message_card(roomId,cardMessage, card_jsonAttach(cardName,vard))
-                    msg.post_message_roomId_file(roomId, msg.messageParentId, cardMessage, file_path, command_format)
+                        msg.post_message_card(roomId,cardMessage, card_jsonAttach(cardName,vard))
+                        msg.post_message_roomId_file(roomId, msg.messageParentId, cardMessage, file_path, command_format)
 
                     logger.debug("Izabrana opcija/card: %s", command)
 
@@ -125,11 +120,12 @@ def index():
                     for command, flag in msg.message_structure.items():
                         if flag=="true":
                             cardMessage=command
+                            
                             cardOptionTitle=command.replace("_"," ") + " option selected"
+                            
                             cardOptionText=getattr(dn, command)()
                             
-                            vard={"iconURL": iconURL, "mainTitle": mainTitle, \
-                            "var1": cardOptionTitle, "var2": cardOptionText, \
+                            vard={"var1": cardOptionTitle, "var2": cardOptionText, \
                             "colour1": "Accent","colour2": "Good","colour3": "Dark"}
 
                             msg.post_message_card(roomId,cardMessage,card_jsonAttach(cardName,vard))
@@ -147,8 +143,7 @@ def index():
                         cardOptionTitle="None selected"
                         cardOptionText="None of the options selected.\\nPlease select at least one option!"
 
-                        vard={"iconURL": iconURL, "mainTitle": mainTitle, \
-                            "var1": cardOptionTitle, "var2": cardOptionText, \
+                        vard={"var1": cardOptionTitle, "var2": cardOptionText, \
                             "colour1": "Attention","colour2": "Attention","colour3": "Attention"}
 
                         msg.post_message_card(roomId,cardMessage,card_jsonAttach(cardName,vard))
@@ -167,8 +162,7 @@ def index():
                     #cardOptionText="Backup is starting!!!"
                     cardOptionText="test fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\ntest fdlmf ldf\\n"
 
-                    vard={"iconURL": iconURL, "mainTitle": mainTitle, \
-                        "var1": cardOptionTitle, "var2": cardOptionText, \
+                    vard={"var1": cardOptionTitle, "var2": cardOptionText, \
                         "colour1": "Accent","colour2": "Good","colour3": "Dark"}
 
                     msg.post_message_card(roomId,cardMessage,card_jsonAttach(cardName,vard))
@@ -231,176 +225,73 @@ def index():
             msg.post_message_email(person_email, msg_text)
         return None
 
-
+#This function is to return card json variable with all varibales populated. 
 def card_jsonAttach(card_file,vard=None):
-    with open(f'Cards/templates/{card_file}') as fp:
+
+    file_path=os.path.join(DIR,f"Cards/{card_file}")
+
+    with open(file_path) as fp:
         text = fp.read()
     
     if vard:
-       
-       # logger.debug(f"This is how unparsed card will look like: {r}")
-       
        t = Template(text)
        r= t.render(vard)
-
        return json.loads(r)
-
     else:
         return json.loads(text)
 
-def create_webhook(url,resource):
-    webhooks_api = f'{msg.base_url}/webhooks'
-    data = { 
-        "name": f"Webhook to ChatBot - {resource}",
-        "resource": resource,
-        "event": "created",
-        "targetUrl": f"{url}"
-        }
-    webhook = requests.post(webhooks_api, headers=msg.headers, data=json.dumps(data))
-    if webhook.status_code != 200:
-        webhook.raise_for_status()
-        logger.error("Cannot register webhook")
-    else:
-        logger.debug(f'Webhook to {url} created for ChatBot - {resource}')
 
 
-def get_webhook_urls():
-    webhook_urls_res = []
-    webhooks_api = f'{msg.base_url}/webhooks'
-    webhooks = requests.get(webhooks_api, headers=msg.headers)
-    if webhooks.status_code != 200:
-            webhooks.raise_for_status()
-    else:
-        for webhook in webhooks.json()['items']:
-            webhook_urls_res.append((webhook['targetUrl'],webhook['resource']))
-    return webhook_urls_res
-
-def createCard(card_type, iconURL, mainTitle, subTitle, options, card_name_p):
-    if card_type == "input":
-        cardName_template="card_inputChoiceSet_template.json"
-        print(f"Reminder that you need to spcify functions {options.values()} in file dna.py if not already")
-    elif card_type == "toggle":
-        cardName_template="card_toggle_template.json"
-        print(f"Reminder that you need to spcify functions {options.values()} in file dna.py if not already")
-    elif card_type == "main":
-        cardName_template="card_mainmenu_template.json"
-        for v in options.values():
-            for vl in v.values():
-                all_manu_buttons.append(vl)
-
-        if list(set(all_manu_buttons) - set(cards)):
-            print ("There is still button defined in main menu, that is not defined as a card", list(set(all_manu_buttons) - set(cards)))
-        if list(set(cards) - set(all_manu_buttons)):
-            print ("There is still card defined, that is not defined in the main menu", list(set(cards) - set(all_manu_buttons)))
-
-
-
-    else:
-        print("Wrong card type!")
-        exit()
-
-
-    vard={"iconURL": iconURL, "mainTitle": mainTitle, \
-            "subTitle": subTitle, \
-            "toggle_choiceset": options, \
-            "card_name": card_type+"_"+card_name_p  }
-    
-    cardName="card_"+vard["card_name"]+".json"
-    
-    file_path=os.path.join(DIR,f"Cards/templates/{cardName}")
-    
-    with open(file_path, "w") as tf:
-        tf.write(json.dumps(card_jsonAttach(cardName_template,vard),indent=4))
-    
-    cards.append(vard["card_name"])
-    
-
-
-
-
-msg = Messenger()
 person_emails = ["mmiletic@cisco.com"]
 
 
 DIR = os.path.dirname(os.path.abspath(__file__))    
 
 
+#Register a webhook for Webex teams. one for messages and one for attachments(cards)
+msg = Messenger()
 ngrok_url="http://cd6c-109-133-255-223.eu.ngrok.io"
-ngrok_url_msg=[(ngrok_url,"messages")]
-ngrok_url_att=[(ngrok_url,"attachmentActions")]
-
-webhook_urls = get_webhook_urls()
-
-logger.debug("set msg: %s", set(ngrok_url_msg))
-logger.debug("set att: %s", set(ngrok_url_att))
-logger.debug("set urls: %s", set(webhook_urls))
-
-intersect_msg = list(set(ngrok_url_msg) & set(webhook_urls))
-intersect_att = list(set(ngrok_url_att) & set(webhook_urls))
-
-logger.debug("intersect_msg: %s",intersect_msg)
-logger.debug("intersect_att: %s",intersect_att)
+msg.registerWebhook(ngrok_url)
 
 
-if intersect_msg:
-    logger.info(f'Already registered webhook for Msg: {intersect_msg[0]}')
-else: 
-    logger.warning("There is no webhook for messages yet. Creating a new one")
-    create_webhook(ngrok_url, "messages")
-    
-
-if intersect_att:
-    logger.info(f'Already registered webhook for Att: {intersect_att[0]}')
-else: 
-    logger.warning("There is no webhook for cards yet. Creating a new one")
-    create_webhook(ngrok_url, "attachmentActions")
-    
-
-
-
-
-
-# CARDS
-cards=[]
-all_manu_buttons=[]
-
-iconURL="https://community.cisco.com/legacyfs/online/fusion/117586_DNA%20Center%20Graphic.png"
-mainTitle="1000s Demo"
-
-card_type="input"
+#Card 1
 subTitle = "Command runner options"
 options = { "Show version" : "show_version", "Show inventory" : "show_inventory"}
-card_name = "cmdRunnertest"
+cardIdName = "cmdRunnertest"
 
-createCard(card_type, iconURL, mainTitle, subTitle, options, card_name)
+c1=CardInput(subTitle, options, cardIdName)
 
-
-card_type="toggle"
+#Card 2
 subTitle = "Show commnad options"
 options = { "show client health" : "show_client_health", "show network health" : "show_network_health", \
                             "show site health": "show_site_health", "show devices":"show_devices"}
-card_name = "show"
+cardIdName = "show"
 
-createCard(card_type, iconURL, mainTitle, subTitle, options, card_name)
+c2=CardToggle(subTitle, options, cardIdName)
 
-card_type="toggle"
+#Card 3
 subTitle = "Show config options"
 options = { "confgig a" : "config_a", "config  b" : "config_b"}
-card_name = "config"
+cardIdName = "config"
 
-createCard(card_type, iconURL, mainTitle, subTitle, options, card_name)
+c3=CardToggle(subTitle, options, cardIdName)
 
-card_type="main"
+
+#Card main
+#id of the card needs to be one of above created.
 subTitle = "Chatbot demo assisting with configuring, monitoring and analysing data."
-options = { "CONFIGURE" : {"🌐 Command runner" : "input_cmdRunnertest"}, \
-            "MONITOR" : { "🚑 Health" : "toggle_show"},  \
-            "ANALYSE" : {"🔍 Backup" : "backup", "🧪 Testing" : "toggle_config"} \
+options = { "CONFIGURE" : {"🌐 Command runner" : c1.display()}, \
+            "MONITOR" : { "🚑 Health" : c2.display()},  \
+            "ANALYSE" : {"🔍 Backup" : "backup", "🧪 Testing" : c3.display()} \
             }
-card_name = "menu"
+cardIdName = "menu"
 
-createCard(card_type, iconURL, mainTitle, subTitle, options, card_name)
+cMain=CardMain(subTitle, options, cardIdName)
 
 
+#Card output/dynamic.
+cardIdName = "generic"
 
+cOutput=CardOutput(cardIdName)
 
 app.run(host="0.0.0.0", port=port, debug=True)
