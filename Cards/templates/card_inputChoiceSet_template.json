@@ -57,6 +57,18 @@
                 "separator": true
             },
             {
+                "type": "Container",
+                "separator": true,
+                "style": "default",
+                "items": [
+                    {
+                        "type": "Input.Toggle",
+                        "title": "Output as an attachment",
+                        "id": "attachment"
+                    }
+                ]
+            },
+            {
                 "type": "ActionSet",
                 "actions": [
                     {

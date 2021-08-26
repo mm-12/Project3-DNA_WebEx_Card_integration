@@ -64,7 +64,7 @@
                     {
                         "type": "Input.Toggle",
                         "title": "Output as an attachment",
-                        "id": "Attachemnt"
+                        "id": "attachment"
                     }
                 ]
             },

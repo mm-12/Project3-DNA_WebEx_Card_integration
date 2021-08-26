@@ -50,26 +50,28 @@
 					{
 						"type": "ColumnSet",
 						"columns": [
+							{% for main, buttons in toggle_choiceset.items() %}
+							{% set outer_loop = loop %}
 							{
 								"type": "Column",
 								"width": 50,
 								"items": [
 									{
 										"type": "TextBlock",
-										"text": "CONFIGURE",
+										"text": "{{ main }}",
 										"wrap": true,
 										"weight": "Bolder",
 										"separator": true,
 										"horizontalAlignment": "Center"
 									},
-									{% for title, button in toggle_choiceset["CONFIGURE"].items() %}
+									{% for title, button in buttons.items() %}
 									{
 										"type": "ActionSet",
 										"actions": [
 											{
 												"type": "Action.Submit",
 												"title": "{{ title }}",
-												"id": "0-{{ loop.index }}",
+												"id": "{{ outer_loop.index }}-{{ loop.index }}",
 												"data": {
 													"button": "{{ button }}"
 												}
@@ -79,67 +81,8 @@
 									}{% if not loop.last %},{% endif %}
 									{% endfor %}
 								]
-							},
-							{
-								"type": "Column",
-								"width": 50,
-								"items": [
-									{
-										"type": "TextBlock",
-										"text": "MONITOR",
-										"wrap": true,
-										"weight": "Bolder",
-										"separator": true,
-										"horizontalAlignment": "Center"
-									},
-									{% for title, button in toggle_choiceset["MONITOR"].items() %}
-									{
-										"type": "ActionSet",
-										"actions": [
-											{
-												"type": "Action.Submit",
-												"title": "{{ title }}",
-												"id": "1-{{ loop.index }}",
-												"data": {
-													"button": "{{ button }}"
-												}
-											}
-										],
-										"horizontalAlignment": "Center"
-									}{% if not loop.last %},{% endif %}
-									{% endfor %}
-								]
-							},
-							{
-								"type": "Column",
-								"width": 50,
-								"items": [
-									{
-										"type": "TextBlock",
-										"text": "ANALYSE",
-										"wrap": true,
-										"weight": "Bolder",
-										"separator": true,
-										"horizontalAlignment": "Center"
-									},
-									{% for title, button in toggle_choiceset["ANALYSE"].items() %}
-									{
-										"type": "ActionSet",
-										"actions": [
-											{
-												"type": "Action.Submit",
-												"title": "{{ title }}",
-												"id": "2-{{ loop.index }}",
-												"data": {
-													"button": "{{ button }}"
-												}
-											}
-										],
-										"horizontalAlignment": "Center"
-									}{% if not loop.last %},{% endif %}
-									{% endfor %}
-								]
-							}
+							}{% if not loop.last %},{% endif %}
+							{% endfor %}
 						],
 						"separator": true
 					}
