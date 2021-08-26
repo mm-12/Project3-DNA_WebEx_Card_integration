@@ -79,7 +79,7 @@ class Dna():
 
         for item in items:
             s = s + f"- **Device ID:** {item.get('id')} \\n Hosname: {item.get('hostname')} \\n IP address: {item.get('managementIpAddress')}\\n\\n"
-        return s
+        return s , "show devices\n" + json.dumps(items,indent=4)
 
     
     def show_site_health(self):
@@ -98,7 +98,7 @@ class Dna():
 
         for item in items:
             s = s + f"- **Site:** {item.get('siteName')} \\n Health: {item.get('networkHealthAverage')}\\n\\n"
-        return s
+        return s, "show site health\n" + json.dumps(items,indent=4)
 
     
     def show_network_health(self):
@@ -117,7 +117,7 @@ class Dna():
         
         s = s + f"- **Good:** {items[0].get('goodCount')} \\n Bad: {items[0].get('badCount')} \\n Health score: {items[0].get('healthScore')}\\n\\n"
         
-        return s
+        return s, "show network health\n" + json.dumps(items[0],indent=4)
 
     
     def show_client_health(self):
@@ -143,20 +143,24 @@ class Dna():
             except:
                 pass
         
-        return s
+        return s, "show client health\n" + json.dumps(items[0].get('scoreDetail'),indent=4)
 
-    def show_version(self):
-        # Get show version
+    def commands(self, commands):
+        # Get command
+        commands_formatted=[]
+
+        for c in commands:
+            command_formatted = c.replace("_"," ")
+            commands_formatted.append(command_formatted)
 
         url = self.base_url + "/dna/intent/api/v1/network-device-poller/cli/read-request"
         
         param = {
-        "name": "Show Command",
-        "commands": ["show version"],
+        "name": "Commands",
+        "commands": commands_formatted,
         "deviceUuids": ["f16955ae-c349-47e9-8e8f-9b62104ab604"]
         }
         
-
         response = requests.post(url=url, data=json.dumps(param),headers=self.header,verify=False)
         
         if response.status_code == 200 or response.status_code == 202:
@@ -165,54 +169,32 @@ class Dna():
             s = f"Failed to get cmd {str(response.text)}"
             return s
         
+        return self._get_task_info(task_id, commands_formatted)
 
-        return self._get_task_info(task_id)
-
-    def show_inventory(self):
-        # Get show inventory
-
-        url = self.base_url + "/dna/intent/api/v1/network-device-poller/cli/read-request"
-        
-        param = {
-        "name": "Show Inventory",
-        "commands": ["show inventory"],
-        "deviceUuids": ["f16955ae-c349-47e9-8e8f-9b62104ab604"]
-        }
-        
-
-        response = requests.post(url=url, data=json.dumps(param),headers=self.header,verify=False)
-        
-        if response.status_code == 200 or response.status_code == 202:
-            task_id = response.json()['response']['taskId']
-        else:
-            s = f"Failed to get cmd {str(response.text)}"
-            return s
-        
-
-        return self._get_task_info(task_id)
-    
-    def _get_task_info(self,task_id):
+    def _get_task_info(self,task_id, commands_formatted):
         
         url = self.base_url + f"/api/v1/task/{task_id}"
         
         result = requests.get(url, headers=self.header)
         file_id = result.json()['response']['progress']
         
-        print ("file_id: ", file_id)
         if "fileId" in file_id:
             file_id=json.loads(file_id)["fileId"]
         else:  # keep checking for task completion
             self._get_task_info(task_id)
         
-        return self._get_cmd_output(file_id)
+        return self._get_cmd_output(file_id, commands_formatted)
     
-    def _get_cmd_output(self,file_id):
+    def _get_cmd_output(self,file_id, commands_formatted):
 
         url = self.base_url + f"/api/v1/file/{file_id}"
 
         result = requests.get(url, headers=self.header)
-        
-        return result.json()[0]["commandResponses"]["SUCCESS"]
+        s=""
+        for i in commands_formatted:
+            s=s+result.json()[0]["commandResponses"]["SUCCESS"][i]
+
+        return s
 
 
    
