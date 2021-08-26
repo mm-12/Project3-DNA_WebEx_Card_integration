@@ -191,8 +191,13 @@ class Dna():
 
         result = requests.get(url, headers=self.header)
         s=""
+        print ("-----> ", result.json()[0]["commandResponses"])
         for i in commands_formatted:
-            s=s+result.json()[0]["commandResponses"]["SUCCESS"][i]
+            s = s+ \
+                result.json()[0]["commandResponses"]["SUCCESS"].get(i,"") + \
+                result.json()[0]["commandResponses"]["FAILURE"].get(i,"") + \
+                result.json()[0]["commandResponses"]["BLACKLISTED"].get(i,"") + \
+                "\n\n"
 
         return s
 

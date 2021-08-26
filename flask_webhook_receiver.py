@@ -31,9 +31,6 @@ def index():
             roomId=data.get('data').get('roomId')
             messageId=data.get('data').get('id')
             messageType=data.get('data').get('type')
-        
-            # Call Dna class to login to DNA
-            dn = Dna()
 
             if messageType=="submit":
                 # Check if there was a text message or card submitted in Webex. submit -> card, None -> text
@@ -47,35 +44,48 @@ def index():
                 elif "input_" in msg.message_structure["card_name"]:
                     command = msg.message_structure["cmd"]
                     ListOfCommands=[]
+                    attach=msg.message_structure["attachment"]
 
                     if command=="":
                         showCardNothingSelected(roomId)
                     else:
-                        ListOfCommands=[command]
-                        cardOptionText=dn.commands(ListOfCommands)
-                        showCardOutputAsAttach(roomId, cardOptionText, ListOfCommands)
+                        if attach=="true":
+                            ListOfCommands=[command]
+                            cardOptionText=dn.commands(ListOfCommands)
+                            showCardOutputAsAttach(roomId, cardOptionText, ListOfCommands)
+                        else:
+                            fnc=getattr(dn, command, None)
+                            if fnc:
+                                inlineMsg, attachmentMsg = fnc()
+                                showCardOutputAsInline(roomId, inlineMsg, command)
+                            else:
+                                showCardWarning(roomId, "WARNING!", f"Command/function <{command}> not implemented yet!")
 
                 elif "toggle_" in msg.message_structure["card_name"]:
                     none_selected=True
                     ListOfCommands=[]
                     cardOptionText=""
-                    attach=msg.message_structure["Attachemnt"]
+                    attach=msg.message_structure["attachment"]
 
                     print ("PPPP ", msg.message_structure)
                     for command, flag in msg.message_structure.items():
-                        xxx=""
-                        yyy=""
                         
-                        if flag=="true" and command!="Attachemnt":
-                            xxx, yyy=getattr(dn, command)()
-                            if attach=="true":
-                                cardOptionText = cardOptionText + yyy
-                                ListOfCommands.append(command)
+                        if flag=="true" and command!="attachment":
+                            fnc=getattr(dn, command, None)
+                            if fnc:
+                                inlineMsg, attachmentMsg = fnc()
+                                if attach=="true":
+                                    cardOptionText = cardOptionText + attachmentMsg +"\n\n"
+                                    ListOfCommands.append(command)
+                                else:
+                                    showCardOutputAsInline(roomId, inlineMsg, command)
                             else:
-                                cardOptionText = xxx
-                                showCardOutputAsInline(roomId, cardOptionText, command)
+                                if attach=="true":
+                                    cardOptionText = cardOptionText + f"Command/function <{command}> not implemented yet!" + "\n\n"
+                                    ListOfCommands.append(command)
+                                else:
+                                    showCardWarning(roomId, "WARNING!", f"Command/function <{command}> not implemented yet!")
                             none_selected=False
-                            
                         
                     if none_selected:
                         showCardNothingSelected(roomId)
@@ -139,16 +149,21 @@ def cardJSONFromVariables(card_file,vard=None):
     else:
         return json.loads(text)
 
-def showCardNothingSelected(roomId):
+def showCardWarning(roomId, cardOptionTitle, cardOptionText):
     cardName="card_output_generic.json"  
-    cardMessage="Nothing selected"
-    cardOptionTitle="None selected"
-    cardOptionText="None of the options selected.\\nPlease select at least one option!"
-
+    cardMessage="Warning"
+    
     vard={"var1": cardOptionTitle, "var2": cardOptionText, \
                             "colour1": "Attention","colour2": "Attention","colour3": "Attention"}
 
     msg.post_message_card(roomId,cardMessage,cardJSONFromVariables(cardName,vard))
+
+
+def showCardNothingSelected(roomId):
+    cardOptionTitle="None selected"
+    cardOptionText="None of the options selected.\\nPlease select at least one option!"
+    showCardWarning(roomId, cardOptionTitle, cardOptionText)
+    
 
 def showCardSelectedInMain(roomId):
     cardMessage="Card for " + msg.message_structure['button']
@@ -212,6 +227,8 @@ msg = Messenger()
 ngrok_url="http://cd6c-109-133-255-223.eu.ngrok.io"
 msg.registerWebhook(ngrok_url)
 
+# Call Dna class to login to DNA
+dn = Dna()
 
 #Card 1
 subTitle = "Command runner options"
@@ -223,7 +240,7 @@ c1=CardInput(subTitle, options, cardIdName)
 #Card 2
 subTitle = "Show commnad options"
 options = { "show client health" : "show_client_health", "show network health" : "show_network_health", \
-                            "show site health": "show_site_health", "show devices":"show_devices"}
+            "show site health": "show_site_health", "show devices":"show_devices", "show none" : "show_none"}
 cardIdName = "show"
 
 c2=CardToggle(subTitle, options, cardIdName)
@@ -244,7 +261,7 @@ cardIdName = "opt"
 
 c4=CardToggle(subTitle, options, cardIdName)
 
-
+"""
 #Card 5
 subTitle = "multiple ch"
 options = { "A" : "A", "B" : "B"}
@@ -252,16 +269,17 @@ cardIdName = "AB"
 
 c5=CardInput(subTitle, options, cardIdName)
 
-"Resting" : c4.display()
-"Conecting" : c5.display()
-"""
+#"Resting" : c4.display()
+#"Conecting" : c5.display()
+
 
 #Card main
 #id of the card needs to be one of above created.
 subTitle = "Chatbot demo assisting with configuring, monitoring and analysing data."
-options = { "CONFIGURE" : {"🌐 Command runner" : c1.display() }, \
-            "MONITOR" : { "🚑 Health" : c2.display(), },  \
-            "ANALYSE" : {"🧪 Testing" : c3.display()} \
+options = { "A1" : {"🌐 Command runner" : c1.display() }, \
+            "A2" : { "🚑 Health" : c2.display(), },  \
+            "A3" : {"🧪 Testing" : c3.display()}, \
+            "A4" : {"🧪 Pest" : c5.display()}
             }
 cardIdName = "menu"
 
