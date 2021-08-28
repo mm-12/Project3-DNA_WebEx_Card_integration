@@ -14,19 +14,19 @@ class Card():
         self.iconURL=iconURL
         self.mainTitle=mainTitle
         
-    def _createCardFile(self, cardFullId, cardTemplateFile, variables):
+    def _create_card_file(self, cardFullId, cardTemplateFile, variables):
                  
         cardFullName="card_" + cardFullId + ".json"
         
         fileName_wpath=os.path.join(DIR,f"Cards/{cardFullName}")
 
         with open(fileName_wpath, "w") as tf:
-            jsonString=self._cardJSONFromVariables(cardTemplateFile,variables)
+            jsonString=self._card_json_from_variables(cardTemplateFile,variables)
             tf.write(json.dumps(jsonString,indent=4))
         
 
 
-    def _cardJSONFromVariables(self, cardFileName, variables=None):
+    def _card_json_from_variables(self, cardFileName, variables=None):
 
         fileName_wpath=os.path.join(DIR,f"Cards/templates/{cardFileName}")
         
@@ -57,8 +57,22 @@ class CardInput(Card):
                 "toggle_choiceset": self.options, \
                 "card_name": self.cardFullId  }
         self.cardTemplateFile="card_inputChoiceSet_template.json"
-        self._createCardFile(self.cardFullId, self.cardTemplateFile, self.variables)
+        self._create_card_file(self.cardFullId, self.cardTemplateFile, self.variables)
         
+class CardInputShowCard(Card):
+    def __init__(self, subTitle, options, cardIdName):
+        super().__init__()
+        self.subTitle=subTitle
+        self.options=options
+        self.cardIdName=cardIdName
+        self.cardType="inputshowcard"
+        self.cardFullId=self.cardType + "_" + cardIdName
+        self.variables={"iconURL": self.iconURL, "mainTitle": self.mainTitle, \
+                "subTitle": self.subTitle, \
+                "show_card": self.options, \
+                "card_name": self.cardFullId  }
+        self.cardTemplateFile="card_inputShowCard_template.json"
+        self._create_card_file(self.cardFullId, self.cardTemplateFile, self.variables)
 
 
 class CardToggle(Card):
@@ -74,7 +88,7 @@ class CardToggle(Card):
                 "toggle_choiceset": self.options, \
                 "card_name": self.cardFullId  }
         self.cardTemplateFile="card_toggle_template.json"
-        self._createCardFile(self.cardFullId, self.cardTemplateFile, self.variables)
+        self._create_card_file(self.cardFullId, self.cardTemplateFile, self.variables)
         
 
 
@@ -90,7 +104,7 @@ class CardMain(Card):
                 "subTitle": self.subTitle, \
                 "toggle_choiceset": self.options }
         self.cardTemplateFile="card_mainmenu_template.json"
-        self._createCardFile(self.cardFullId, self.cardTemplateFile, self.variables)
+        self._create_card_file(self.cardFullId, self.cardTemplateFile, self.variables)
         
 
 class CardOutput(Card):
@@ -103,6 +117,6 @@ class CardOutput(Card):
                 "var1": "{{ var1 }}", "var2": "{{ var2 }}", \
                 "colour1": "{{ colour1 }}","colour2": "{{ colour2 }}","colour3": "{{ colour3 }}" }
         self.cardTemplateFile="card_output_generic_template.json"
-        self._createCardFile(self.cardFullId, self.cardTemplateFile, self.variables)
+        self._create_card_file(self.cardFullId, self.cardTemplateFile, self.variables)
         
 

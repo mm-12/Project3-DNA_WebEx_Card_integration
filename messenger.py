@@ -81,12 +81,11 @@ class Messenger():
             } 
         post_message_url = f'{self.base_url}/messages'
         response = requests.post(post_message_url,headers=self.headers,data=json.dumps(data))
-        
         self.messageParentId = response.json().get("id")
-
 
     def _get_webhook_urls(self):
         webhook_urls_res = []
+        webhook_id_res = []
         webhooks_api = f'{self.base_url}/webhooks'
         webhooks = requests.get(webhooks_api, headers=self.headers)
         if webhooks.status_code != 200:
@@ -94,7 +93,9 @@ class Messenger():
         else:
             for webhook in webhooks.json()['items']:
                 webhook_urls_res.append((webhook['targetUrl'],webhook['resource']))
-        return webhook_urls_res      
+                webhook_id_res.append((webhook['id'], webhook['targetUrl']))
+        
+        return webhook_urls_res, webhook_id_res
 
     def _create_webhook(self,targetUrl,resource):
         webhooks_api = f'{self.base_url}/webhooks'
@@ -108,13 +109,24 @@ class Messenger():
         
         if webhook.status_code != 200:
             webhook.raise_for_status()
+   
+    def _clean_webhook(self, webhook_id, ngrok_url):
+        for id, targetUrl in webhook_id:
+            if targetUrl != ngrok_url:
+                webhooks_api = f'{self.base_url}/webhooks/{id}'
+                webhooks = requests.delete(webhooks_api, headers=self.headers)
+                print(id, webhooks)
+        
 
-    def registerWebhook(self, ngrok_url):
+    def register_webhook(self, ngrok_url):
 
         ngrok_url_msg=[(ngrok_url,"messages")]
         ngrok_url_att=[(ngrok_url,"attachmentActions")]
 
-        webhook_urls = self._get_webhook_urls()
+        webhook_urls, webhook_id = self._get_webhook_urls()
+
+        print(webhook_urls)
+        print(webhook_id)
 
         intersect_msg = list(set(ngrok_url_msg) & set(webhook_urls))
         intersect_att = list(set(ngrok_url_att) & set(webhook_urls))
@@ -124,6 +136,10 @@ class Messenger():
             
         if not intersect_att:
             self._create_webhook(ngrok_url, "attachmentActions")
+
+        self._clean_webhook(webhook_id, ngrok_url)
+
+    
     
     
                 

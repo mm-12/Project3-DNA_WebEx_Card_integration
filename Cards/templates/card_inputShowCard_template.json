@@ -1,0 +1,116 @@
+[{
+	"contentType": "application/vnd.microsoft.card.adaptive",
+	"content":
+    {
+    "type": "AdaptiveCard",
+    "version": "1.2",
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "body": [
+        {
+            "type": "ColumnSet",
+            "columns": [
+                {
+                    "type": "Column",
+                    "width": "auto",
+                    "items": [
+                        {
+                            "type": "Image",
+                            "url": "{{ iconURL }}",
+                            "size": "Medium"
+                        }
+                    ]
+                },
+                {
+                    "type": "Column",
+                    "width": "stretch",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "text": "{{ mainTitle }}",
+                            "wrap": true,
+                            "weight": "Bolder",
+                            "size": "Medium",
+                            "color": "Accent"
+                        },
+                        {
+                            "type": "TextBlock",
+                            "text": "{{ subTitle }}",
+                            "wrap": true,
+                            "color": "Good"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "Input.ChoiceSet",
+            "choices": [
+                {% for title, value in show_card["0"].items() %}
+                    {
+                        "title": "{{ title }}",
+                        "value": "{{ value }}"
+                    }{% if not loop.last %},{% endif %}
+                    {% endfor %}
+            ],
+            "placeholder": "Select one option",
+            "id": "device",
+            "separator": true
+        },
+        {
+            "type": "Container",
+            "separator": true,
+            "style": "default",
+            "items": [
+                {
+                    "type": "Input.Toggle",
+                    "title": "Output as an attachment",
+                    "id": "attachment"
+                }
+            ]
+        },
+        {
+            "type": "ActionSet",
+            "separator": true,
+            "actions": [
+                {
+                    "type": "Action.ShowCard",
+                    "title": "Select commands",
+                    "card": {
+                        "type": "AdaptiveCard",
+                        "body": [
+                            {
+                                "type": "Input.ChoiceSet",
+                                "choices": [
+                                    {% for title, value in show_card["1"].items() %}
+                                    {
+                                        "title": "{{ title }}",
+                                        "value": "{{ value }}"
+                                    }{% if not loop.last %},{% endif %}
+                                    {% endfor %}
+                                ],
+                                "placeholder": "Select one option",
+                                "id": "command",
+                                "separator": true
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "type": "ActionSet",
+            "actions": [
+                {
+                    "type": "Action.Submit",
+                    "title": "OK",
+                    "style": "positive",
+                    "id": "333",
+                    "data": {
+                            "card_name": "{{ card_name }}"
+                            }
+                }
+            ]
+        }
+            ]
+    }
+}]
