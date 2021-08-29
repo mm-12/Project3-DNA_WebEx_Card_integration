@@ -45,7 +45,7 @@
             {
                 "type": "Input.ChoiceSet",
                 "choices": [
-                    {% for title, value in toggle_choiceset.items() %}
+                    {% for title, value in choiceset.items() %}
                     {
                         "title": "{{ title }}",
                         "value": "{{ value }}"

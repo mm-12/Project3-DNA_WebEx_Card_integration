@@ -50,7 +50,7 @@
 					{
 						"type": "ColumnSet",
 						"columns": [
-							{% for main, buttons in toggle_choiceset.items() %}
+							{% for main, buttons in mainmenu.items() %}
 							{% set outer_loop = loop %}
 							{
 								"type": "Column",

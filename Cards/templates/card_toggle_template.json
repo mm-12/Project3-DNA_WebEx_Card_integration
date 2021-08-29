@@ -46,7 +46,7 @@
             {
                 "type": "Container",
                 "items": [
-                    {% for title, id in toggle_choiceset.items() %}
+                    {% for title, id in toggle.items() %}
                     {
                         "type": "Input.Toggle",
                         "title": "{{ title }}",
