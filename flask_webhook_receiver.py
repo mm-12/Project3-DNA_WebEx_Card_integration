@@ -14,7 +14,7 @@ from werkzeug.serving import is_running_from_reloader
 
 import os
 
-from Card import CardInput, CardMain, CardOutput, CardToggle, CardInputShowCard
+from Card import CardInputChoiceSet, CardMain, CardOutput, CardToggle, CardInputShowCard
 
 
 app = Flask(__name__)
@@ -43,10 +43,10 @@ def index():
                 msg.get_card_message(messageId)
 
                 if "main" in msg.message_structure:
-                    showcard_selected_in_main(roomId)
+                    showcard_after_main_type(roomId)
 
-                elif "input_" in msg.message_structure["card_name"]:
-                    showcard_after_input_type(roomId)
+                elif "inputchoiceset_" in msg.message_structure["card_name"]:
+                    showcard_after_inputchoiceset_type(roomId)
                     
                 elif "toggle_" in msg.message_structure["card_name"]:
                     showcard_after_toggle_type(roomId)
@@ -54,8 +54,8 @@ def index():
                 elif "inputshowcard_" in msg.message_structure["card_name"]:
                     showcard_after_inputshowcard_type(roomId)
 
-                elif msg.message_structure["card_name"]=="main":                    
-                    showcard_main_menu(roomId)
+                elif "output_" in msg.message_structure["card_name"]:                    
+                    showcard_after_output_type(roomId)
 
                 else:
                     print ("that card still not implemented")
@@ -66,7 +66,7 @@ def index():
                 msg.get_txt_message(messageId)
 
                 if "hello" in msg.message_structure.lower():
-                    showcard_main_menu(roomId)
+                    showcard_after_output_type(roomId)
                 else:
                     msg.post_message_roomId(roomId,"Type hello to start")           
         
@@ -110,6 +110,7 @@ def card_json_from_variables(card_file,vard=None):
     else:
         return json.loads(text)
 
+
 def showcard_warning(roomId, cardOptionTitle, cardOptionText):
     cardName="card_output_generic.json"  
     cardMessage="Warning"
@@ -123,13 +124,7 @@ def showcard_nothing_selected(roomId):
     cardOptionTitle="None selected"
     cardOptionText="None of the options selected.\\nPlease select at least one option!"
     showcard_warning(roomId, cardOptionTitle, cardOptionText)
-    
-def showcard_selected_in_main(roomId):
-    cardMessage="Card for " + msg.message_structure['button']
-    cardName="card_" + msg.message_structure['button'] + ".json"
-                    
-    vard = None
-    msg.post_message_card(roomId,cardMessage, card_json_from_variables(cardName, vard))
+
 
 def showcard_output_as_attach(roomId, cardOptionText, ListOfCommands):
     cardName="card_output_generic.json"
@@ -167,7 +162,8 @@ def showcard_output_as_inline(roomId, cardOptionText, command):
 
     msg.post_message_card(roomId,cardMessage,card_json_from_variables(cardName,vard))
 
-def showcard_main_menu(roomId):
+
+def showcard_after_output_type(roomId):
     cardMessage="Card for main manu"
     cardName="card_main_menu.json"
 
@@ -175,7 +171,7 @@ def showcard_main_menu(roomId):
 
     msg.post_message_card(roomId,cardMessage,card_json_from_variables(cardName,vard))
 
-def showcard_after_input_type(roomId):
+def showcard_after_inputchoiceset_type(roomId):
     command = msg.message_structure["cmd"]
     ListOfCommands = []
     attach = msg.message_structure["attachment"]
@@ -237,6 +233,14 @@ def showcard_after_toggle_type(roomId):
 def showcard_after_inputshowcard_type(roomId):
     showcard_warning(roomId, "WARNING!", f"This card is not implemented yet!")
 
+def showcard_after_main_type(roomId):
+    cardMessage="Card for " + msg.message_structure['button']
+    cardName="card_" + msg.message_structure['button'] + ".json"
+                    
+    vard = None
+    msg.post_message_card(roomId,cardMessage, card_json_from_variables(cardName, vard))
+
+
 
 person_emails = ["mmiletic@cisco.com"]
 
@@ -269,7 +273,7 @@ subTitle = "Command runner options"
 options = { "Show version" : "show_version", "Show inventory" : "show_inventory"}
 cardIdName = "cmdRunnertest"
 
-c1=CardInput(subTitle, options, cardIdName)
+c1=CardInputChoiceSet(subTitle, options, cardIdName)
 
 #Card 2
 subTitle = "Show commnad options"
@@ -301,7 +305,7 @@ subTitle = "multiple ch"
 options = { "A" : "A", "B" : "B"}
 cardIdName = "AB"
 
-c5=CardInput(subTitle, options, cardIdName)
+c5=CardInputChoiceSet(subTitle, options, cardIdName)
 
 
 
