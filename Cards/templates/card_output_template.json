@@ -1,0 +1,71 @@
+[{
+	"contentType": "application/vnd.microsoft.card.adaptive",
+	"content":
+
+    {
+        "type": "AdaptiveCard",
+        "version": "1.2",
+        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+        "body": [
+            {
+                "type": "ColumnSet",
+                "columns": [
+                    {
+                        "type": "Column",
+                        "width": "auto",
+                        "items": [
+                            {
+                                "type": "Image",
+                                "url": "{{ iconURL }}",
+                                "size": "Medium"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "Column",
+                        "width": "stretch",
+                        "items": [
+                            {
+                                "type": "TextBlock",
+                                "text": "{{ mainTitle }}",
+                                "wrap": true,
+                                "weight": "Bolder",
+                                "size": "Medium",
+                                "color": "{{ colour1 }}"
+                            },
+                            {
+                                "type": "TextBlock",
+                                "text": "{{ var1 }}",
+                                "wrap": true,
+                                "color": "{{ colour2 }}"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "type": "TextBlock",
+                "text": "{{ var2 }}",
+                "wrap": true,
+                "color": "{{ colour3 }}",
+                "separator": true
+            },
+            {
+                "type": "ActionSet",
+                "actions": [
+                    {
+                        "type": "Action.Submit",
+                        "id": "0",
+                        "data": {
+                            "card_name": "{{ card_name }}"
+                        },
+                        "title": "Main menu"
+                    }
+                ],
+                "height": "stretch",
+                "horizontalAlignment": "Right",
+                "separator": true
+            }
+        ]
+    }
+}]
